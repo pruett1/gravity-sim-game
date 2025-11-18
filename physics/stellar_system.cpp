@@ -10,6 +10,14 @@ StellarSystem::StellarSystem(const std::vector<StellarObject>& objects, const fl
     this->numObj = objects.size();
 }
 
+StellarSystem::StellarSystem(const float dt) {
+    this->G = 39.477;
+    this->dt = dt;
+    this->t = 0;
+    this->numObj = 0;
+    this->objects = std::vector<StellarObject>();
+}
+
 StellarSystem::~StellarSystem() {
     objects.clear();
 }

@@ -7,7 +7,9 @@
 
 class StellarSystem {
     public:
-        StellarSystem(const std::vector<StellarObject>& objects, const float dt);
+        StellarSystem(const std::vector<StellarObject>& objects, const float dt); // init with some objects
+
+        StellarSystem(const float dt); // init with only dt, no objects will be initalized
 
         ~StellarSystem();
 
