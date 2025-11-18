@@ -1,11 +1,12 @@
 #include "stellar_system.h"
 
-StellarSystem::StellarSystem(const std::vector<StellarObject>& objects) {
+StellarSystem::StellarSystem(const std::vector<StellarObject>& objects, const float dt) {
     this->objects.reserve(objects.size());
     this->objects = objects;
 
     this->G = 39.477; // Gravitational constant in AU^3 / (M_S * yr^2)
-    this->dt = 0.0001; 
+    this->dt = dt; 
+    this->t = 0;
     this->numObj = objects.size();
 }
 
@@ -16,6 +17,14 @@ StellarSystem::~StellarSystem() {
 void StellarSystem::addObject(const StellarObject& newObject) {
     objects.push_back(newObject);
     numObj++;
+}
+
+std::vector<StellarObject>& StellarSystem::getObjects() {
+    return objects;
+}
+
+float StellarSystem::getTime() {
+    return t;
 }
 
 std::vector<std::pair<double, double>> StellarSystem::computeAcc(std::vector<std::pair<double, double>> pos) {
@@ -129,12 +138,14 @@ void StellarSystem::rk4Step() {
         double v_x = initV[i].first;
         double v_y = initV[i].second;
 
-        double dp_x = (1/6.) * (k1_p[i].first + 2 * k2_p[i].first + 2 * k3_p[i].first + k4_p[i].first);
-        double dp_y = (1/6.) * (k1_p[i].second + 2 * k2_p[i].second + 2 * k3_p[i].second + k4_p[i].second);
-        double dv_x = (1/6.) * (k1_v[i].first + 2 * k2_v[i].first + 2 * k3_v[i].first + k4_v[i].first);
-        double dv_y = (1/6.) * (k1_v[i].second + 2 * k2_v[i].second + 2 * k3_v[i].second + k4_v[i].second);
+        double dp_x = dt * (1/6.) * (k1_p[i].first + 2 * k2_p[i].first + 2 * k3_p[i].first + k4_p[i].first);
+        double dp_y = dt * (1/6.) * (k1_p[i].second + 2 * k2_p[i].second + 2 * k3_p[i].second + k4_p[i].second);
+        double dv_x = dt * (1/6.) * (k1_v[i].first + 2 * k2_v[i].first + 2 * k3_v[i].first + k4_v[i].first);
+        double dv_y = dt * (1/6.) * (k1_v[i].second + 2 * k2_v[i].second + 2 * k3_v[i].second + k4_v[i].second);
 
         objects[i].setPosition(std::make_pair(p_x + dp_x, p_y + dp_y));
         objects[i].setVelocity(std::make_pair(v_x + dv_x, v_y + dv_y));
     }
+
+    t += dt;
 }
