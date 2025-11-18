@@ -1,10 +1,22 @@
 #include "stellar_obj.h"
 
-StellarObject::StellarObject(const double mass, const double density, const std::pair<double, double>& position, const std::pair<double, double>& velocity) {
+StellarObject::StellarObject(const double mass, const double density, const std::pair<double, double>& position, const std::pair<double, double>& velocity, const std::vector<int> color) {
     this->mass = mass;
     this->density = density;
     this->position = position;
     this->velocity = velocity;
+    
+    if (color.size() > 3 ||
+        color[0] < 0 || color[0] > 255 ||
+        color[1] < 0 || color[1] > 255 ||
+        color[2] < 0 || color[1] > 255) {
+        
+        std::cerr << "Invalid format for (R, G, B). Must be 3 elements between 0 and 255. Defaulting color to (255, 255, 255)" << std::endl;
+        this->color = {255, 255, 255};
+    }
+    else {
+        this->color = color;
+    }
 }
 
 StellarObject::~StellarObject() {
@@ -39,4 +51,21 @@ double StellarObject::getRadius() {
     radius = 1/radius; // 1 / AU^3 -> AU^3
     radius = std::cbrt(radius); // AU^3 -> AU
     return radius;
+}
+
+void StellarObject::setColor(std::vector<int> newColor) {
+        if (newColor.size() > 3 ||
+        newColor[0] < 0 || newColor[0] > 255 ||
+        newColor[1] < 0 || newColor[1] > 255 ||
+        newColor[2] < 0 || newColor[1] > 255) {
+        
+        std::cerr << "Invalid format for (R, G, B). Must be 3 elements between 0 and 255. Color will remain unchanged." << std::endl;
+    }
+    else {
+        color = newColor;
+    }
+}
+
+std::vector<int> StellarObject::getColor() {
+    return color;
 }

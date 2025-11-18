@@ -12,11 +12,12 @@ PYBIND11_MODULE(physics, m) {
     py::bind_vector<std::vector<StellarObject>>(m, "StellarObjectList");
 
     py::class_<StellarObject>(m, "StellarObject")
-        .def(py::init<const double, const double, const std::pair<double, double>, const std::pair<double, double>>(),
-            py::arg("mass"), py::arg("density"), py::arg("position"), py::arg("velocity"))
+        .def(py::init<const double, const double, const std::pair<double, double>, const std::pair<double, double>, const std::vector<int>>(),
+            py::arg("mass"), py::arg("density"), py::arg("position"), py::arg("velocity"), py::arg("color") = std::vector<int>{255, 255, 255})
         .def("get_position", &StellarObject::getPosition)
         .def("get_mass", &StellarObject::getMass)
-        .def("get_radius", &StellarObject::getRadius);
+        .def("get_radius", &StellarObject::getRadius)
+        .def("get_color", &StellarObject::getColor);
 
     py::class_<StellarSystem>(m, "StellarSystem")
         .def(py::init<const std::vector<StellarObject>&, const float>(), py::arg("objects"), py::arg("dt"))
