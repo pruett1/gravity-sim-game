@@ -9,16 +9,22 @@ pygame.font.init()
 
 FPS = 60
 WIDTH, HEIGHT = 1440, 900
+SIDEBAR_FRAC = 0.1
 
 # scale of pixels -> AU (1 AU = 645 pixels)
 # the sun would have a diameter of ~6 pixels (sun_r = 0.00465 AU, sun_d = 0.0093 AU)
 # (6 px / 0.0093 AU) = 645.16 px/AU
 SCALE = 645.
 
-DT = 0.001
+DT = 0.0001
 STEPS_PER_FRAME = int(1/FPS/DT)
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
+
+SIM_WIDTH = int(WIDTH * (1 - SIDEBAR_FRAC))
+sim_surf = pygame.Surface((SIM_WIDTH, HEIGHT))
+sidebar_surf = pygame.Surface((WIDTH - SIM_WIDTH, HEIGHT))
+
 pygame.display.set_caption("Stellar System Sim")
 clock = pygame.time.Clock()
 
@@ -49,9 +55,10 @@ def main():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 mx, my = pygame.mouse.get_pos()
 
-                if mx > (WIDTH - 0.1*WIDTH):
+                if mx >= (SIM_WIDTH):
+                    sidebar_mx = mx - SIM_WIDTH
                     for rect, obj in sidebar:
-                        if rect.collidepoint((mx, my)):
+                        if rect.collidepoint((sidebar_mx, my)):
                             print(f"Selected: {obj["name"]}")
                             curr_obj = obj
                 else:
@@ -64,7 +71,7 @@ def main():
                 drag_vec = [init_pos[0] -  end_pos[0], end_pos[1] - init_pos[1]]
                 scaled_vec = [v*5/SCALE for v in drag_vec]
 
-                init_pos = screen_to_world(screen, init_pos, SCALE)
+                init_pos = screen_to_world(sim_surf, init_pos, SCALE)
                 mass, density, color = curr_obj["mass"], curr_obj["density"], curr_obj["color"]
 
                 obj = StellarObject(mass, density, init_pos, scaled_vec, color)
@@ -87,14 +94,17 @@ def main():
         if running_sim:
             stel_sys.rk4_step()
 
-        screen.fill((0,0,0))
-        sidebar = draw_sidebar(screen, int(WIDTH*0.1), SCALE)
+        sim_surf.fill((0,0,0))
+        sidebar = draw_sidebar(sidebar_surf, int(WIDTH*0.1), SCALE)
+
         
         for obj in sys_objs:
-            draw_object(screen, obj, SCALE)
+            draw_object(sim_surf, obj, SCALE)
 
-        draw_temp_obj_w_vec(screen, creating_obj, init_pos)
+        draw_temp_obj_w_vec(sim_surf, creating_obj, init_pos)
         
+        screen.blit(sim_surf, (0,0))
+        screen.blit(sidebar_surf, (SIM_WIDTH, 0))
         pygame.display.flip()
         
     pygame.quit()

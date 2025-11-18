@@ -54,7 +54,7 @@ def draw_sidebar(surface, width, SCALE):
 
     item_hitboxes = []
 
-    pygame.draw.rect(surface, (124, 124, 124), (SURF_WIDTH - width, 0, width, surface.get_height()))
+    surface.fill((124, 124, 124))
 
     y_off = MIN_PADDING
 
