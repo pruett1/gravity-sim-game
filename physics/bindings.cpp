@@ -10,11 +10,13 @@ PYBIND11_MODULE(physics, m) {
         .def(py::init<const double, const double, const std::pair<double, double>, const std::pair<double, double>>(),
             py::arg("mass"), py::arg("density"), py::arg("position"), py::arg("velocity"))
         .def("get_position", &StellarObject::getPosition)
-        .def("get_velocity", &StellarObject::getVelocity)
+        .def("get_mass", &StellarObject::getMass)
         .def("get_radius", &StellarObject::getRadius);
 
     py::class_<StellarSystem>(m, "StellarSystem")
-        .def(py::init<std::vector<const StellarObject>&>(), py::arg("objects"))
+        .def(py::init<const std::vector<StellarObject>&, const float>(), py::arg("objects"), py::arg("dt"))
         .def("add_object", &StellarSystem::addObject, py::arg("new_object"))
+        .def("get_objects", &StellarSystem::getObjects)
+        .def("get_time", &StellarSystem::getTime)
         .def("rk4_step", &StellarSystem::rk4Step);
 }
