@@ -4,8 +4,8 @@ import pybind11
 
 ext_modules = [
     Extension(
-        "physics.physics",
-        sources = ["physics/stellar_obj.cpp", "physics/stellar_system.cpp"],
+        "physics",
+        sources = ["physics/stellar_obj.cpp", "physics/stellar_system.cpp", "physics/bindings.cpp"],
         include_dirs = [pybind11.get_include()],
         language = "c++",
         extra_compile_args=["-O3", "-std=c++20"]
@@ -13,7 +13,7 @@ ext_modules = [
 ]
 
 setup(
-    name = "physics.physics",
+    name = "physics",
     version = "0.1.0",
     ext_modules = ext_modules,
     packages = ["physics"],
