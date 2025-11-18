@@ -22,6 +22,12 @@ StellarSystem::~StellarSystem() {
     objects.clear();
 }
 
+void StellarSystem::reset() {
+    t = 0;
+    numObj = 0;
+    objects.clear();
+}
+
 void StellarSystem::addObject(const StellarObject& newObject) {
     objects.push_back(newObject);
     numObj++;

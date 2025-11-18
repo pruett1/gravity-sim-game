@@ -21,6 +21,7 @@ PYBIND11_MODULE(physics, m) {
     py::class_<StellarSystem>(m, "StellarSystem")
         .def(py::init<const std::vector<StellarObject>&, const float>(), py::arg("objects"), py::arg("dt"))
         .def(py::init<const float>(), py::arg("dt"))
+        .def("reset", &StellarSystem::reset)
         .def("add_object", &StellarSystem::addObject, py::arg("new_object"))
         .def("get_objects", &StellarSystem::getObjects, py::return_value_policy::reference_internal)
         .def("get_time", &StellarSystem::getTime)

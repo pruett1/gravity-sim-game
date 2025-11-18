@@ -17,6 +17,8 @@ class StellarSystem {
 
         void addObject(const StellarObject& newObject);
 
+        void reset();
+
         std::vector<StellarObject>& getObjects();
 
         float getTime();
