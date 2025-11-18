@@ -21,8 +21,8 @@ For RK4, the state is position and the velocity, the derivative of the state the
 - $k4_p = v_3$, $k4_v = \vec{a}(p_3)$
 
 Then
-- $p_{t+1} = p_t + \frac{1}{6}(k1_p + 2 k2_p + 2 k3_p + k4)$
-- $v_{t+1} = v_t + \frac{1}{6}(k1_v + 2 k2_v + 2 k3_v + k4)$
+- $p_{t+1} = p_t + \frac{1}{6}(k1_p + 2 k2_p + 2 k3_p + k4)dt$
+- $v_{t+1} = v_t + \frac{1}{6}(k1_v + 2 k2_v + 2 k3_v + k4)dt$
 
 
 ## Visualization/Interaction
