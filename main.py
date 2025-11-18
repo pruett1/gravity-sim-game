@@ -1,10 +1,14 @@
 from physics import StellarObject, StellarSystem
-import pygame as pygame
+from pygame_helpers.draw import draw_object, draw_temp_obj_w_vec, draw_sidebar
+from pygame_helpers.physical_quantities import screen_to_world, radius_calc
+
+import pygame
 
 pygame.init()
+pygame.font.init()
 
 FPS = 60
-WIDTH, HEIGHT = 1280, 720
+WIDTH, HEIGHT = 1440, 900
 
 # scale of pixels -> AU (1 AU = 645 pixels)
 # the sun would have a diameter of ~6 pixels (sun_r = 0.00465 AU, sun_d = 0.0093 AU)
@@ -15,7 +19,6 @@ DT = 0.001
 STEPS_PER_FRAME = int(1/FPS/DT)
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-# screen.fill("black")
 pygame.display.set_caption("Stellar System Sim")
 clock = pygame.time.Clock()
 
@@ -23,21 +26,15 @@ stel_sys = StellarSystem(dt=DT)
 sys_objs = stel_sys.get_objects()
 running_sim = False
 
-def screen_to_world(pos):
-    x, y = pos
-    return [x / SCALE, (HEIGHT - y) / SCALE]
-
-def draw_object(obj):
-    x, y = obj.get_position()
-    x *= SCALE
-    y *= SCALE
-    y = HEIGHT - y
-    radius = obj.get_radius() * SCALE
-    pygame.draw.circle(screen, (255,255,255), (int(x), (int(y))), radius)
+creating_obj = False
+init_pos = None
+curr_obj = {"name": "Sun (G)", "mass": 1, "density": 1410, "radius": radius_calc(1, 1410), "color": (255, 237, 227)}
 
 def main():
     global running_sim
-    print(STEPS_PER_FRAME)
+    global creating_obj
+    global init_pos
+    global curr_obj
     dt = 0.001
     running = True
 
@@ -50,9 +47,31 @@ def main():
                 continue
 
             if event.type == pygame.MOUSEBUTTONDOWN:
-                pos = screen_to_world(pygame.mouse.get_pos())
-                obj = StellarObject(1, 1410, pos, (0, 0))
+                mx, my = pygame.mouse.get_pos()
+
+                if mx > (WIDTH - 0.1*WIDTH):
+                    for rect, obj in sidebar:
+                        if rect.collidepoint((mx, my)):
+                            print(f"Selected: {obj["name"]}")
+                            curr_obj = obj
+                else:
+                    creating_obj = True
+                    init_pos = pygame.mouse.get_pos()
+                
+            if event.type == pygame.MOUSEBUTTONUP and creating_obj:
+                end_pos = pygame.mouse.get_pos()
+
+                drag_vec = [init_pos[0] -  end_pos[0], end_pos[1] - init_pos[1]]
+                scaled_vec = [v*5/SCALE for v in drag_vec]
+
+                init_pos = screen_to_world(screen, init_pos, SCALE)
+                mass, density, color = curr_obj["mass"], curr_obj["density"], curr_obj["color"]
+
+                obj = StellarObject(mass, density, init_pos, scaled_vec, color)
                 stel_sys.add_object(obj)
+
+                creating_obj = False
+                init_pos = None
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
@@ -69,8 +88,12 @@ def main():
             stel_sys.rk4_step()
 
         screen.fill((0,0,0))
+        sidebar = draw_sidebar(screen, int(WIDTH*0.1), SCALE)
+        
         for obj in sys_objs:
-            draw_object(obj)
+            draw_object(screen, obj, SCALE)
+
+        draw_temp_obj_w_vec(screen, creating_obj, init_pos)
         
         pygame.display.flip()
         
