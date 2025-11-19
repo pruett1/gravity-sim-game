@@ -17,6 +17,14 @@ StellarObject::StellarObject(const double mass, const double density, const std:
     else {
         this->color = color;
     }
+
+    // mass is in kg/m^3 but all distances in this are in AU so need to convert
+    double AU = 149597870700; // m/AU
+    double M_S = 1.988416e30; // kg/M_S
+    double r = (density * std::pow(AU, 3) / M_S) / mass; // kg / m^3 -> M_S / AU^3 -> 1 / AU^3
+    r = 1/r; // 1 / AU^3 -> AU^3
+    r = std::cbrt(r); // AU^3 -> AU
+    this->radius = r;
 }
 
 StellarObject::~StellarObject() {
@@ -44,12 +52,7 @@ double StellarObject::getMass() {
 }
 
 double StellarObject::getRadius() {
-    // mass is in kg/m^3 but all distances in this are in AU so need to convert
-    double AU = 149597870700; // m/AU
-    double M_S = 1.988416e30; // kg/M_S
-    double radius = (density * std::pow(AU, 3) / M_S) / mass; // kg / m^3 -> M_S / AU^3 -> 1 / AU^3
-    radius = 1/radius; // 1 / AU^3 -> AU^3
-    radius = std::cbrt(radius); // AU^3 -> AU
+    
     return radius;
 }
 

@@ -29,6 +29,7 @@ class StellarObject {
     private:
         double mass; // in M_S (solar mass)
         double density; // in kg/m^3
+        double radius;
 
         std::pair<double, double> position; // {{pos_x, pos_y}
         std::pair<double, double> velocity; // {vel_x, vel_y}}
