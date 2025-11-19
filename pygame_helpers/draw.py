@@ -11,16 +11,16 @@ def draw_object(surface, obj, SCALE):
     color = obj.get_color()
     pygame.draw.circle(surface, color, (int(x), (int(y))), radius)
 
-def draw_temp_obj_w_vec(surface, creating_obj, init_pos):
+def draw_temp_obj_w_vec(surface, creating_obj, init_pos, curr_obj, SCALE):
     if creating_obj and init_pos is not None:
         x1, y1 = init_pos
         x2, y2 = pygame.mouse.get_pos()
 
         arrow_end = (x1 - (x2 - x1), y1 - (y2 - y1))
 
-        temp_obj = StellarObject(1, 1410, (0,0), (0, 0))
+        temp_obj = StellarObject(curr_obj["mass"], curr_obj["density"], (0,0), (0, 0), curr_obj["color"])
 
-        pygame.draw.circle(surface, (255, 255, 255), (int(x1), int(y1)), temp_obj.get_radius())
+        pygame.draw.circle(surface, temp_obj.get_color(), (int(x1), int(y1)), temp_obj.get_radius() * SCALE)
 
         pygame.draw.line(surface, (169, 17, 83), (x1, y1), arrow_end, 2)
 
