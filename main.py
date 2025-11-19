@@ -69,13 +69,18 @@ def main():
                 end_pos = pygame.mouse.get_pos()
 
                 drag_vec = [init_pos[0] -  end_pos[0], end_pos[1] - init_pos[1]]
-                scaled_vec = [v*5/SCALE for v in drag_vec]
+                scaled_vec = [v*20/SCALE for v in drag_vec]
 
                 init_pos = screen_to_world(sim_surf, init_pos, SCALE)
                 mass, density, color = curr_obj["mass"], curr_obj["density"], curr_obj["color"]
 
                 obj = StellarObject(mass, density, init_pos, scaled_vec, color)
                 stel_sys.add_object(obj)
+                
+                velocity = sum([v**2 for v in scaled_vec])
+
+                print(f"Created object: {curr_obj["name"]} at {init_pos} with velocity of {velocity} (AU/yr)")
+                print(f"In m/s {velocity * 4743.72}")
 
                 creating_obj = False
                 init_pos = None
@@ -101,7 +106,7 @@ def main():
         for obj in sys_objs:
             draw_object(sim_surf, obj, SCALE)
 
-        draw_temp_obj_w_vec(sim_surf, creating_obj, init_pos)
+        draw_temp_obj_w_vec(sim_surf, creating_obj, init_pos, curr_obj, SCALE)
         
         screen.blit(sim_surf, (0,0))
         screen.blit(sidebar_surf, (SIM_WIDTH, 0))
