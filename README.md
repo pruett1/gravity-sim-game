@@ -14,6 +14,8 @@ For the computation of this, I am using C++ but will expose it to Python using p
 
 The evolution of the masses will be done using RK4, the stellar objects will only be able to traverse through the x-y plane
 
+### Runge-Kutta 4
+
 For RK4, the state is position and the velocity, the derivative of the state then is $\frac{d\vec{l}}{dt} = \vec{v}$ and $\frac{d\vec{v}}{dt} = \vec{a}$
 - $k1_p = v_t$, $k1_v = \vec{a}(p_t)$, $p_1 = p_0 + \frac{1}{2} k1_p dt$, $v_1 = v_0 + \frac{1}{2} k1_v dt$
 - $k2_p = v_1$, $k2_v = \vec{a}(p_1)$, $p_2 = p_1 + \frac{1}{2} k2_p dt$, $v_2 = v_1 + \frac{1}{2} k2_v dt$
@@ -23,6 +25,18 @@ For RK4, the state is position and the velocity, the derivative of the state the
 Then
 - $p_{t+1} = p_t + \frac{1}{6}(k1_p + 2 k2_p + 2 k3_p + k4)dt$
 - $v_{t+1} = v_t + \frac{1}{6}(k1_v + 2 k2_v + 2 k3_v + k4)dt$
+
+### Stellar Collisions
+
+There are interesting and more in depth methods for simulating this that I may look into later (https://astro-gr.org/stellar-collisions-methods/), but probably won't.
+
+Instead I am going to do very simple conservation of momentum and mass for any stellar collisions
+
+$\vec{\rho_t} = \vec{\rho_1} + \vec{\rho_2}$ and $m_t = m_1 + m_2$
+
+For the density, I will be ignoring any of the actual physics as I could not find any definite way in which stellar densities can be predicted
+
+So $\vec{\rho_t} = \frac{m_1 + m_2}{V_1+V_2}$
 
 
 ## Visualization/Interaction

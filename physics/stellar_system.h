@@ -2,6 +2,8 @@
 #include <vector>
 #include <cmath>
 #include <iostream>
+#include <algorithm>
+#include <unordered_map>
 
 #include "stellar_obj.h"
 
@@ -31,4 +33,8 @@ class StellarSystem {
         float t; // Just for tracking total time passed
 
         std::vector<std::pair<double, double>> computeAcc(std::vector<std::pair<double, double>> pos);
+
+        std::vector<std::pair<int, int>> detectCollisions();
+
+        void resolveCollisions(std::vector<std::pair<int, int>>);
 };

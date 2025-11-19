@@ -162,4 +162,146 @@ void StellarSystem::rk4Step() {
     }
 
     t += dt;
+
+    resolveCollisions(detectCollisions());
+}
+
+std::vector<std::pair<int, int>> StellarSystem::detectCollisions() {
+    std::vector<std::pair<int, int>> collisions;
+    for (int i = 0; i < numObj; i++) {
+        for (int j = i+1; j < numObj; j++) {
+            double dx = objects[j].getPosition().first - objects[i].getPosition().first; //dx = x_j - x_i
+            double dy = objects[j].getPosition().second - objects[i].getPosition().second; //dy = y_j - y_i
+            double r = sqrt(dx*dx + dy*dy);
+
+            if (r < (objects[i].getRadius() + objects[j].getRadius())) {
+                collisions.emplace_back(std::make_pair(i, j));
+            }
+        }
+    }
+
+    return collisions;
+}
+
+struct DSU {
+    std::vector<int> x;
+    DSU(int n): x(n) { 
+        for (int i = 0; i < n; i++) { 
+            x[i] = i;
+        }
+    }
+    int find (int a) {
+        return x[a] == a ? a : x[a] = find(x[a]);
+    }
+    void unite(int a, int b) {
+        a = find(a);
+        b = find(b);
+        if (a != b) {
+            x[b] = a;
+        }
+    }
+};
+
+struct MergeData {
+    double m;
+    double px, py;
+    double com_x_msum, com_y_msum;
+    std::vector<int> color_sum;
+    double vol_sum;
+    std::vector<int> idxs;
+};
+
+void StellarSystem::resolveCollisions(std::vector<std::pair<int, int>> collisions) {
+    if (collisions.empty()) { return; }
+
+    // Build DSU
+    DSU dsu(numObj);
+    for (const auto pair: collisions) {
+        int a = pair.first;
+        int b = pair.second;
+        dsu.unite(a,b);
+    }
+
+    // collect groups
+    std::unordered_map<int, std::vector<int>> groups;
+    for (int i = 0; i < numObj; i++) {
+        int root = dsu.find(i);
+        groups[root].push_back(i);
+    }
+
+    std::vector<MergeData> merges;
+    merges.reserve(groups.size());
+
+    // append merges into groups
+    for (auto& kv: groups) {
+        std::vector<int> idxs = kv.second;
+        if (idxs.size() == 1) { continue; } // cant merge a single star
+
+        MergeData md;
+        md.m = 0.0;
+        md.px = md.py = 0.0;
+        md.com_x_msum = md.com_y_msum = 0.0;
+        md.color_sum = {0, 0, 0};
+        md.vol_sum = 0.0;
+        md.idxs = idxs;
+
+        for (int idx: idxs) {
+            StellarObject& obj = objects[idx];
+            double m = obj.getMass();
+            md.m += m;
+            md.px += m * obj.getVelocity().first;
+            md.py += m * obj.getVelocity().second;
+            md.com_x_msum += m * obj.getPosition().first;
+            md.com_y_msum += m * obj.getPosition().second;
+            md.vol_sum = (4./3.) * (3.14159) * std::pow(obj.getRadius(), 3);
+
+            std::vector<int> color = obj.getColor();
+            for (int i = 0; i < 3; i++) {
+                md.color_sum[i] += m * color[i]; // weighted color avg
+            }
+        }
+
+        merges.push_back(std::move(md));
+    }
+
+    if (merges.empty()) { return; }
+
+    // remove all indicies involved in merges, going from highest to lowest
+    std::vector<int> remove;
+    for (auto &m: merges) {
+        for (int idx: m.idxs) {
+            remove.push_back(idx);
+        }
+    }
+
+    std::sort(remove.begin(), remove.end());
+    remove.erase(std::unique(remove.begin(), remove.end()), remove.end()); //remove all dups from idx list
+
+    for (auto it = remove.rbegin(); it != remove.rend(); it++) {
+        int idx = *it;
+        objects.erase(objects.begin() + idx);
+    }
+
+    // create new obj from merges
+    for (auto& m: merges) {
+        double m_t = m.m;
+        double vx = m.px / m_t;
+        double vy = m.py / m_t;
+        double com_x = m.com_x_msum / m_t;
+        double com_y = m.com_y_msum / m_t;
+        double rho = m_t / m.vol_sum; // this is M_s / AU^3 need kg/m^3
+        rho = rho / std::pow(149597870700, 3) * (1.988416e30); //M_s / AU^3 / (m / AU)^3 * (kg / M_s) = kg/m^3
+
+        std::vector<int> color(3);
+        for (int i = 0; i < 3; i++){
+            color[i] = int(m.color_sum[i] / m_t);
+            color[i] = std::min(255, color[i]);
+        }
+
+        StellarObject merged(m_t, rho, std::make_pair(com_x, com_y), std::make_pair(vx, vy), color);
+        std::cout << "New merged object has a mass of " << m_t << " density of rho " << rho << std::endl;
+        objects.push_back(std::move(merged));
+    }
+
+    numObj = (int)objects.size();
 }
