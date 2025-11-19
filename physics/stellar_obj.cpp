@@ -18,12 +18,12 @@ StellarObject::StellarObject(const double mass, const double density, const std:
         this->color = color;
     }
 
-    // mass is in kg/m^3 but all distances in this are in AU so need to convert
+    // density is in kg/m^3 but all distances in this are in AU so need to convert
     double AU = 149597870700; // m/AU
     double M_S = 1.988416e30; // kg/M_S
-    double r = (density * std::pow(AU, 3) / M_S) / mass; // kg / m^3 -> M_S / AU^3 -> 1 / AU^3
-    r = 1/r; // 1 / AU^3 -> AU^3
-    r = std::cbrt(r); // AU^3 -> AU
+    double scaled_rho = (density * std::pow(AU, 3) / M_S); // kg / m^3 -> M_S / AU^3
+    double r = (3 * mass) / (4 * 3.14159 * scaled_rho); // M_S AU ^3 / M_S -> AU^3
+    r = std::pow(r, 1/3.);
     this->radius = r;
 }
 

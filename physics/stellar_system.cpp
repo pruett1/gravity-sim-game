@@ -253,7 +253,7 @@ void StellarSystem::resolveCollisions(std::vector<std::pair<int, int>> collision
             md.py += m * obj.getVelocity().second;
             md.com_x_msum += m * obj.getPosition().first;
             md.com_y_msum += m * obj.getPosition().second;
-            md.vol_sum = (4./3.) * (3.14159) * std::pow(obj.getRadius(), 3);
+            md.vol_sum += (4./3.) * (3.14159) * std::pow(obj.getRadius(), 3);
 
             std::vector<int> color = obj.getColor();
             for (int i = 0; i < 3; i++) {
